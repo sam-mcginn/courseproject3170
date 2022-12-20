@@ -35,11 +35,6 @@ main:
     li	    s1, _AD1CON1_SAMP_MASK  ## Will use s1 to control sampling
     li	    s2, _AD1CON1_DONE_MASK  ## Will use s2 to check if conversion done
     
-    
-    
-    
-    sw t0, LATBCLR
-    
     // Bit Masks in LATB for each digit:
     li s0, _PORTB_RB6_MASK	// A segment (works)
     sw s0, ODCBSET
@@ -102,120 +97,7 @@ main:
     // 9 = ABCDFG = NOT E
     or t9, zero, s4		// t9 = 9 DIGIT
     
-     
-    /*
-    // TEST - make sure each segment works
-    not s7, zero
-    sw s7, LATBSET
-    sw s0, LATBCLR
-    jal delay
-    nop
-  
-    sw s7, LATBSET
-    sw s1, LATBCLR
-    jal delay
-    nop
     
-    sw s7, LATBSET
-    sw s2, LATBCLR
-    jal delay
-    nop
-    
-    sw s7, LATBSET
-    sw s3, LATBCLR
-    jal delay
-    nop
-    
-    sw s7, LATBSET
-    sw s4, LATBCLR
-    jal delay
-    nop
-    
-    sw s7, LATBSET
-    sw s5, LATBCLR
-    jal delay
-    nop
-    
-    sw s7, LATBSET
-    sw s6, LATBCLR
-    jal delay
-    nop
-    */
-    
-    
-    /*
-     //TEST - make sure each number shows up properly
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t0, LATBSET
-    jal delay
-    nop
-    
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t1, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t2, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t3, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t4, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t5, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t6, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t7, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t8, LATBSET
-    jal delay
-    nop
-    
-    sw s7, LATBCLR
-    jal delay
-    nop
-    sw t9, LATBSET
-    jal delay
-    nop
-    */
     
     // After setup - still need s7 (to clear segments) and t0-t9 (for each digit)
     // Need to reset s1,s2
@@ -248,15 +130,6 @@ chkdone:
     */
     lw	    s6, ADC1BUF0	    ## Read result into a0
     
-    /*
-    li s4, _PORTB_RB12_MASK
-    sw s4, LATBSET
-    jal delay2
-    nop
-    sw s4, LATBCLR
-    jal delay2
-    nop
-    */
     
     jal	    setNum		    ## Call function below
     nop
