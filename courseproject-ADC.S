@@ -48,7 +48,9 @@ main:
 
     li	    s1, _AD1CON1_SAMP_MASK  ## Will use s1 to control sampling
     li	    s2, _AD1CON1_DONE_MASK  ## Will use s2 to check if conversion done
-        
+    
+    
+    
 mainloop:
     sw	    s1, AD1CON1SET	    ## Set SAMP = 1 --> start sampling
     
