@@ -11,55 +11,33 @@
     
 main:
     // Configure Port B to power LED segments
-    //FIX - RB3 = potentiometer = input
-    sw zero, TRISB	// All Port B bits = output
+    sw zero, TRISB	// Sets Port B bits = output
+    li t0, _PORTB_RB3_MASK
+    sw t0, TRISBSET	// ^Except for potentiometer (RB3) = input
+    
     not t0, zero	// t0 = all 1s
-    sw t0, ANSELB	// All port B bits = analog
+    sw t0, ANSELB	// All port B bits = analog (both LED pins and pot. are analog)
     
+    // Configure ADC with potentiometer input
+    sw	    zero, AD1CON1	    ## Will use 10-bit conversion mode; 
+				    ##    clear all other bits as well
+    sw	    zero, AD1CON2	    ## Clear all bits (key bits: VCFG for Vdd/Vss as reference
+				    ##    SMPI for 1 sample/interrupt)
+    li	    s0, _AD1CON3_ADCS_MASK  ## ADCS = 0xFF --> T_AD = 510 * T_SRC (slowest possible A/D conversion clock)
+    ori	    s0, s0, 0x1000	    ## SAMC = 0b10000 --> auto-sample time = 16 * T_AD
+    sw	    s0, AD1CON3
+    li	    s0, 11		    ## Potentiometer is connected to AN11
+    sw	    s0, AD1CHS		    ##   so set AD1CHS = 11
     
-    /* TEST STUFF - switching LED on/off
-    //TEST
-    sw	    zero, TRISA		    ## TRISA = 0  --> all PORTA bits = output
-    sw	    zero, ANSELA	    ## ANSELA = 0 --> all PORTA bits digital
-    li	    t9, _PORTA_RA0_MASK	    ## $s1 = 0x00000001 (control LED1)
-    //li t1, _PORTB_RB0_MASK	// t1 = bit mask for RB0
-    // li t1, _PORTB_CNPUB_MASK	// mask for port b pull up
-    // li t2, _PORTB_CNPDB_MASK	// mask for port b pull down
-    sw t1, ODCBSET
-    //sw t0, CNPUBSET	// enable port b pull up
-    //sw t0, CNPDBSET	// disable port b pull down
-    
-    //sw t1, LATBCLR // - turn LED ON
+    li	    s0, _AD1CON1_ON_MASK
+    sw	    s0, AD1CON1SET	    ## Enable ADC
 
+    li	    s1, _AD1CON1_SAMP_MASK  ## Will use s1 to control sampling
+    li	    s2, _AD1CON1_DONE_MASK  ## Will use s2 to check if conversion done
     
-    sw t1, LATBSET // - turn LED OFF
-    sw t9, LATACLR // FIX - FOR DEBUGGING (LED1 OFF)
-    jal delay
-    nop
     
-    sw t1, LATBCLR
-    sw t9, LATAINV // FIX - FOR DEBUGGING
-    jal delay
-    nop
     
-    sw t1, LATBSET
-    sw t9, LATAINV // FIX - FOR DEBUGGING
-    jal delay
-    nop
     
-    sw t1, LATBCLR
-    sw t9, LATAINV // FIX - FOR DEBUGGING
-    jal delay
-    nop
-    
-    sw t1, LATBSET
-    sw t9, LATAINV // FIX - FOR DEBUGGING
-    jal delay
-    nop
-    
-    sw t1, LATBCLR
-    sw t9, LATAINV
-    */
     sw t0, LATBCLR
     
     // Bit Masks in LATB for each digit:
@@ -79,7 +57,12 @@ main:
     sw s6, ODCBSET
     
 
-    not s7, zero
+    or s7, s1, s2		// All 7 segments
+    or s7, s7, s3
+    or s7, s7, s4
+    or s7, s7, s5
+    or s7, s7, s6
+    or s7, s7, s0
 
     
     // Pull up network: 0=lit, 1=not lit
@@ -160,9 +143,9 @@ main:
     */
     
     
-    
+    /*
      //TEST - make sure each number shows up properly
-    sw s7, LATBCLR //FIX: need mask for all 7 segments
+    sw s7, LATBCLR
     jal delay
     nop
     sw t0, LATBSET
@@ -232,9 +215,39 @@ main:
     sw t9, LATBSET
     jal delay
     nop
+    */
     
+    // After setup - still need s7 (to clear segments) and t0-t9 (for each digit)
     
 mainloop:
+    sw	    s1, AD1CON1SET	    ## Set SAMP = 1 --> start sampling
+    
+    // Delay loop to wait ~3000 cycles until starting conversion
+    jal	    delay
+    nop
+    
+    sw	    s1, AD1CON1CLR	    ## Set SAMP = 0 --> start converting
+    
+    // Delay loop to wait ~3000 cycles until even bothering to check DONE bit
+    jal	    delay
+    nop
+    
+    // Repeatedly check DONE bit to figure out if conversion is complete
+chkdone:
+    lw	    s3, AD1CON1
+    and	    s3, s3, s2		    ## Isolate DONE bit (s2 = "DONE" mask)
+    beq	    s3, zero, chkdone	    ## Keep polling DONE if it's not set
+    nop
+    
+    /* 
+     If you reach this point, conversion is done
+       Use upper 5 bits of result to determine which LEDs to turn on
+    */
+    lw	    a0, ADC1BUF0	    ## Read result into a0
+    
+    jal	    setNum		    ## Call function below
+    nop
+    
     
     j	    mainloop
     nop
@@ -254,3 +267,34 @@ delay1:
     jr	    ra
     nop
     .end delay
+    
+    .global setNum
+    .ent setNum
+setNum:
+    // If number is 0-95, set number to 0 and jump to end of fn.
+    sw s7, LATBCLR
+    jal delay
+    nop
+    sw t0, LATBSET
+    jal delay
+    nop
+    
+    // If number is 96-198, set number to 1 and jump to end of fn.
+    
+    // If number is 199-301, set number to 2 and jump to end of fn.
+    
+    // If number is 302-404, set number to 3 and jump to end of fn.
+    
+    // If number is 405-507, set number to 4 and jump to end of fn.
+    
+    // If number is 508-610, set number to 5 and jump to end of fn.
+    
+    // If number is 611-713, set number to 6 and jump to end of fn.
+    
+    // If number is 714-817, set number to 7 and jump to end of fn.
+    
+    // If number is 818-920, set number to 8 and jump to end of fn.
+    
+    // If number is 921-1023, set number to 9 and jump to end of fn.
+    
+    .end setNum
