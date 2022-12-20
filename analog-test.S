@@ -63,11 +63,11 @@ main:
     sw t0, LATBCLR
     
     // Bit Masks in LATB for each digit:
-    li s0, _PORTB_RB6_MASK	// A segment (was b9)
+    li s0, _PORTB_RB6_MASK	// A segment (works)
     sw s0, ODCBSET
     li s1, _PORTB_RB2_MASK	// B segment (works)
     sw s1, ODCBSET
-    li s2, _PORTB_RB11_MASK	// C segment (was b11)
+    li s2, _PORTB_RB7_MASK	// C segment (was b11)
     sw s2, ODCBSET
     li s3, _PORTB_RB0_MASK	// D segment (works)
     sw s3, ODCBSET
