@@ -283,80 +283,98 @@ delay1:
     .ent setNum
 setNum:
     // If number is 0-95, set number to 0 and jump to end of fn.
-    slti s4, s6, 0x005F
-    beq s4, zero, setDone
+    slti s4, s6, 96
+    beq s4, zero, over0
     nop
     sw s7, LATBCLR
     sw t0, LATBSET
+    j setDone
+    nop
 
-    
+  over0:  
     // If number is 96-198, set number to 1 and jump to end of fn.
     slti s4, s6, 199
-    beq s4, zero, setDone
+    beq s4, zero, over1
     nop
     sw s7, LATBCLR
     sw t1, LATBSET
+    j setDone
+    nop
 
-    
+  over1:
     // If number is 199-301, set number to 2 and jump to end of fn
     slti s4, s6, 302
-    beq s4, zero, setDone
+    beq s4, zero, over2
     nop
     sw s7, LATBCLR
     sw t2, LATBSET
+    j setDone
+    nop
 
-    
+   over2: 
     // If number is 302-404, set number to 3 and jump to end of fn.
     slti s4, s6, 404
-    beq s4, zero, setDone
+    beq s4, zero, over3
     nop
     sw s7, LATBCLR
     sw t3, LATBSET
+    j setDone
+    nop
 
-    
+    over3:
     // If number is 405-507, set number to 4 and jump to end of fn.
     slti s4, s6, 508
-    beq s4, zero, setDone
+    beq s4, zero, over4
     nop
     sw s7, LATBCLR
     sw t4, LATBSET
+    j setDone
+    nop
 
-    
+    over4:
     // If number is 508-610, set number to 5 and jump to end of fn.
     slti s4, s6, 611
-    beq s4, zero, setDone
+    beq s4, zero, over5
     nop
     sw s7, LATBCLR
     sw t5, LATBSET
+    j setDone
+    nop
 
-    
+    over5:
     // If number is 611-713, set number to 6 and jump to end of fn.
     slti s4, s6, 714
-    beq s4, zero, setDone
+    beq s4, zero, over6
     nop
     sw s7, LATBCLR
     sw t6, LATBSET
+    j setDone
+    nop
 
-    
+    over6:
     // If number is 714-817, set number to 7 and jump to end of fn.
     slti s4, s6, 817
-    beq s4, zero, setDone
+    beq s4, zero, over7
     nop
     sw s7, LATBCLR
     sw t7, LATBSET
+    j setDone
+    nop
 
-    
+    over7:
     // If number is 818-920, set number to 8 and jump to end of fn.
     slti s4, s6, 921
-    beq s4, zero, setDone
+    beq s4, zero, over8
     nop
     sw s7, LATBCLR
     sw t8, LATBSET
+    j setDone
+    nop
 
-    
+    over8:
     // If number is 921-1023, set number to 9 and jump to end of fn.
     sw s7, LATBCLR
-    sw t4, LATBSET
+    sw t9, LATBSET
     
 setDone:
     jr ra
