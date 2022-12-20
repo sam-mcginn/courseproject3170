@@ -218,6 +218,9 @@ main:
     */
     
     // After setup - still need s7 (to clear segments) and t0-t9 (for each digit)
+    // Need to reset s1,s2
+    li	    s1, _AD1CON1_SAMP_MASK  ## Will use s1 to control sampling
+    li	    s2, _AD1CON1_DONE_MASK  ## Will use s2 to check if conversion done
     
 mainloop:
     sw	    s1, AD1CON1SET	    ## Set SAMP = 1 --> start sampling
@@ -243,58 +246,134 @@ chkdone:
      If you reach this point, conversion is done
        Use upper 5 bits of result to determine which LEDs to turn on
     */
-    lw	    a0, ADC1BUF0	    ## Read result into a0
+    lw	    s6, ADC1BUF0	    ## Read result into a0
+    
+    /*
+    li s4, _PORTB_RB12_MASK
+    sw s4, LATBSET
+    jal delay2
+    nop
+    sw s4, LATBCLR
+    jal delay2
+    nop
+    */
     
     jal	    setNum		    ## Call function below
     nop
-    
     
     j	    mainloop
     nop
     
     .end main
     
-     .global delay
+     .globl delay
     .ent delay
 delay:
-    // DEBUG
-    li	    t0, 2000000
+    li	    s5, 1000
 delay1:
-    addi    t0, t0, -1
-    bne	    t0, zero, delay1
+    addi    s5, s5, -1
+    bne	    s5, zero, delay1
     nop
     
     jr	    ra
     nop
     .end delay
     
-    .global setNum
+    .globl setNum
     .ent setNum
 setNum:
     // If number is 0-95, set number to 0 and jump to end of fn.
+    slti s4, s6, 0x005F
+    beq s4, zero, setDone
+    nop
     sw s7, LATBCLR
-    jal delay
-    nop
     sw t0, LATBSET
-    jal delay
-    nop
+
     
     // If number is 96-198, set number to 1 and jump to end of fn.
+    slti s4, s6, 199
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t1, LATBSET
+
     
-    // If number is 199-301, set number to 2 and jump to end of fn.
+    // If number is 199-301, set number to 2 and jump to end of fn
+    slti s4, s6, 302
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t2, LATBSET
+
     
     // If number is 302-404, set number to 3 and jump to end of fn.
+    slti s4, s6, 404
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t3, LATBSET
+
     
     // If number is 405-507, set number to 4 and jump to end of fn.
+    slti s4, s6, 508
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t4, LATBSET
+
     
     // If number is 508-610, set number to 5 and jump to end of fn.
+    slti s4, s6, 611
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t5, LATBSET
+
     
     // If number is 611-713, set number to 6 and jump to end of fn.
+    slti s4, s6, 714
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t6, LATBSET
+
     
     // If number is 714-817, set number to 7 and jump to end of fn.
+    slti s4, s6, 817
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t7, LATBSET
+
     
     // If number is 818-920, set number to 8 and jump to end of fn.
+    slti s4, s6, 921
+    beq s4, zero, setDone
+    nop
+    sw s7, LATBCLR
+    sw t8, LATBSET
+
     
     // If number is 921-1023, set number to 9 and jump to end of fn.
+    sw s7, LATBCLR
+    sw t4, LATBSET
+    
+setDone:
+    jr ra
+    nop
     
     .end setNum
+    
+// For debugging
+    .globl delay2
+    .ent delay2
+delay2:
+    li	    s5, 2000000
+delay12:
+    addi    s5, s5, -1
+    bne	    s5, zero, delay12
+    nop
+    
+    jr	    ra
+    nop
+    .end delay2
