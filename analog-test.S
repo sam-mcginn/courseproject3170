@@ -17,7 +17,7 @@ main:
     sw t0, ANSELB	// All port B bits = analog
     
     
-    /* TEST STUFF
+    /* TEST STUFF - switching LED on/off
     //TEST
     sw	    zero, TRISA		    ## TRISA = 0  --> all PORTA bits = output
     sw	    zero, ANSELA	    ## ANSELA = 0 --> all PORTA bits digital
@@ -67,7 +67,7 @@ main:
     sw s0, ODCBSET
     li s1, _PORTB_RB2_MASK	// B segment (works)
     sw s1, ODCBSET
-    li s2, _PORTB_RB7_MASK	// C segment (was b11)
+    li s2, _PORTB_RB7_MASK	// C segment (works)
     sw s2, ODCBSET
     li s3, _PORTB_RB0_MASK	// D segment (works)
     sw s3, ODCBSET
@@ -78,7 +78,10 @@ main:
     li s6, _PORTB_RB15_MASK	// G segment (works)
     sw s6, ODCBSET
     
-    /*
+
+    not s7, zero
+
+    
     // Pull up network: 0=lit, 1=not lit
     // 0 = ABCDEF = NOT G
     or t0, zero, s6		// t0 = 0 DIGIT
@@ -115,9 +118,10 @@ main:
     
     // 9 = ABCDFG = NOT E
     or t9, zero, s4		// t9 = 9 DIGIT
-     */
-     
     
+     
+    /*
+    // TEST - make sure each segment works
     not s7, zero
     sw s7, LATBSET
     sw s0, LATBCLR
@@ -153,59 +157,82 @@ main:
     sw s6, LATBCLR
     jal delay
     nop
+    */
     
     
-    /*
-    sw t0, LATBCLR
+    
+     //TEST - make sure each number shows up properly
+    sw s7, LATBCLR //FIX: need mask for all 7 segments
+    jal delay
+    nop
+    sw t0, LATBSET
     jal delay
     nop
     
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t1, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t2, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t3, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t4, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t5, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t6, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t7, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t8, LATBSET
     jal delay
     nop
     
-    sw s0, LATBCLR
+    sw s7, LATBCLR
+    jal delay
+    nop
     sw t9, LATBSET
     jal delay
     nop
-    */
+    
     
 mainloop:
     
